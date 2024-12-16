@@ -8,6 +8,12 @@ public class LoopCounter : MonoBehaviour
     public int CurrentValue => _currentValue;
     public int Threshold => _threshold;
 
+    private void Start()
+    {
+        // 触发初始值
+        EventBus.Instance.TriggerLoopCountChanged(_currentValue);
+    }
+
     public void Increment()
     {
         _currentValue++;

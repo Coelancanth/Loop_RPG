@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -5,13 +6,26 @@ public class Tile : MonoBehaviour
     [SerializeField] private TileType _type = TileType.Empty;
     [SerializeField] private bool _isBuilt;
     
+    public event System.Action OnTypeChanged;
+    
     private Dictionary<TileType, Dictionary<ResourceType, int>> _buildCosts = new()
     {
         { TileType.Road, new Dictionary<ResourceType, int> { { ResourceType.Stone, 5 } } },
         { TileType.Forest, new Dictionary<ResourceType, int> { { ResourceType.Wood, 10 } } }
     };
 
-    public TileType Type => _type;
+    public TileType Type 
+    { 
+        get => _type;
+        private set
+        {
+            if (_type != value)
+            {
+                _type = value;
+                OnTypeChanged?.Invoke();
+            }
+        }
+    }
     public bool IsBuilt => _isBuilt;
 
     public bool CanPlace(IResourceService resourceService)

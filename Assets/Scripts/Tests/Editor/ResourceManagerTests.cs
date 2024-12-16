@@ -15,12 +15,22 @@ public class ResourceManagerTests
     [Test]
     public void AddResource_WithinMaxStorage_IncreasesResourceCount()
     {
-        // 实现测试逻辑
+        int initialAmount = 100;
+        _resourceManager.AddResource(ResourceType.Wood, initialAmount);
+        
+        Assert.AreEqual(initialAmount, _resourceManager.GetResourceCount(ResourceType.Wood));
     }
 
     [Test]
     public void TryConsumeResource_WithSufficientResources_ReturnsTrue()
     {
-        // 实现测试逻辑
+        int initialAmount = 100;
+        int consumeAmount = 50;
+        
+        _resourceManager.AddResource(ResourceType.Stone, initialAmount);
+        bool result = _resourceManager.TryConsumeResource(ResourceType.Stone, consumeAmount);
+        
+        Assert.IsTrue(result);
+        Assert.AreEqual(initialAmount - consumeAmount, _resourceManager.GetResourceCount(ResourceType.Stone));
     }
 } 

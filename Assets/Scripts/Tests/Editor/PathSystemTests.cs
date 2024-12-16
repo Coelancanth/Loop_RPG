@@ -17,12 +17,23 @@ public class PathSystemTests
     [Test]
     public void PlaceTile_WithValidPosition_ReturnsTrue()
     {
-        // 实现测试逻辑
+        var position = new Vector2Int(0, 0);
+        var tileObj = new GameObject().AddComponent<Tile>();
+        
+        bool result = _pathSystem.PlaceTile(position, tileObj.Type);
+        
+        Assert.IsTrue(result);
     }
 
     [Test]
     public void RemoveTile_WithExistingTile_ReturnsTrue()
     {
-        // 实现测试逻辑
+        var position = new Vector2Int(0, 0);
+        var tileObj = new GameObject().AddComponent<Tile>();
+        _pathSystem.PlaceTile(position, tileObj.Type);
+        
+        bool result = _pathSystem.RemoveTile(position);
+        
+        Assert.IsTrue(result);
     }
 } 
