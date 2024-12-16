@@ -25,6 +25,12 @@ public class LoopCounter : MonoBehaviour
             Reset();
         }
     }
+    
+    public void SetValue(int value)
+    {
+        _currentValue = value;
+        EventBus.Instance.TriggerLoopCountChanged(_currentValue);
+    }
 
     public void Reset()
     {

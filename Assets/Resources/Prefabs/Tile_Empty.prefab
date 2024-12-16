@@ -164,6 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _visualConfig: {fileID: 11400000, guid: a1b0a64076fed8143abb23ce7f92cf87, type: 2}
+  _defaultSprite: {fileID: 0}
 --- !u!114 &6179238797964776704
 MonoBehaviour:
   m_ObjectHideFlags: 0
