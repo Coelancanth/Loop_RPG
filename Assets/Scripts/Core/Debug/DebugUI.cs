@@ -5,12 +5,12 @@ public class DebugUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _debugText;
     private TilePlacer _tilePlacer;
-    private PathSystem _pathSystem;
+    private TileSystem _tileSystem;
 
     private void Start()
     {
         _tilePlacer = FindObjectOfType<TilePlacer>();
-        _pathSystem = FindObjectOfType<PathSystem>();
+        _tileSystem = FindObjectOfType<TileSystem>();
         
         if (_debugText == null)
         {
@@ -33,13 +33,13 @@ public class DebugUI : MonoBehaviour
             debug += "TilePlacer not found or mouse position invalid\n";
         }
 
-        if (_pathSystem != null)
+        if (_tileSystem != null)
         {
-            debug += $"Tile Prefabs Count: {_pathSystem.TilePrefabsCount}\n";
+            debug += $"Tile Prefabs Count: {_tileSystem.TilePrefabsCount}\n";
         }
         else
         {
-            debug += "PathSystem not found\n";
+            debug += "TileSystem not found\n";
         }
 
         _debugText.text = debug;

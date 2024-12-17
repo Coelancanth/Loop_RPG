@@ -6,7 +6,7 @@ public class SceneSetup : MonoBehaviour
 
     [Header("Core Systems")]
     public GameManager GameManager;
-    public PathSystem PathSystem;
+    public TileSystem TileSystem;
     public ResourceManager ResourceManager;
     public LoopCounter LoopCounter;
     
@@ -47,13 +47,13 @@ public class SceneSetup : MonoBehaviour
         // 设置TilePlacer引用
         if (TilePlacer != null)
         {
-            TilePlacer.SetupReferences(PathSystem, GameCamera);
+            TilePlacer.SetupReferences(TileSystem, GameCamera);
         }
 
         // 设置PathSystem引用
-        if (PathSystem != null)
+        if (TileSystem != null)
         {
-            PathSystem.SetupReferences(ResourceManager);
+            TileSystem.SetupReferences(ResourceManager);
         }
     }
 } 

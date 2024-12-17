@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class TilePlacer : MonoBehaviour
 {
-    [SerializeField] private PathSystem _pathSystem;
+    [SerializeField] private TileSystem _tileSystem;
     [SerializeField] private Camera _camera;
     [SerializeField] private TileType _currentTileType = TileType.Road;
 
@@ -24,19 +24,19 @@ public class TilePlacer : MonoBehaviour
         // 获取鼠标位置
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 0));
-        CurrentMouseGridPosition = _pathSystem.WorldToGrid(worldPosition);
+        CurrentMouseGridPosition = _tileSystem.WorldToGrid(worldPosition);
 
         // 添加调试日志
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Debug.Log($"Attempting to place {_currentTileType} at {CurrentMouseGridPosition}");
-            bool success = _pathSystem.PlaceTile(CurrentMouseGridPosition.Value, _currentTileType);
+            bool success = _tileSystem.PlaceTile(CurrentMouseGridPosition.Value, _currentTileType);
             Debug.Log($"Placement success: {success}");
         }
         else if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             Debug.Log($"Attempting to remove tile at {CurrentMouseGridPosition}");
-            bool success = _pathSystem.RemoveTile(CurrentMouseGridPosition.Value);
+            bool success = _tileSystem.RemoveTile(CurrentMouseGridPosition.Value);
             Debug.Log($"Remove success: {success}");
         }
     }
@@ -47,22 +47,22 @@ public class TilePlacer : MonoBehaviour
         _currentTileType = type;
     }
 
-    public void SetupReferences(PathSystem pathSystem, Camera camera)
+    public void SetupReferences(TileSystem tileSystem, Camera camera)
     {
-        _pathSystem = pathSystem;
+        _tileSystem = tileSystem;
         _camera = camera;
     }
 
     // 添加调试可视化
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying || _pathSystem == null || _camera == null) return;
+        if (!Application.isPlaying || _tileSystem == null || _camera == null) return;
 
         // 显示当前网格位置
         Vector2 mousePosition = Mouse.current?.position.ReadValue() ?? Vector2.zero;
         Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 0));
-        Vector2Int gridPosition = _pathSystem.WorldToGrid(worldPosition);
-        Vector3 gridWorldPos = _pathSystem.GridToWorld(gridPosition);
+        Vector2Int gridPosition = _tileSystem.WorldToGrid(worldPosition);
+        Vector3 gridWorldPos = _tileSystem.GridToWorld(gridPosition);
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(gridWorldPos, Vector3.one);

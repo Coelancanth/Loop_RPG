@@ -1,5 +1,6 @@
 # NOTE:
 - The Log start with a title, and data.
+- The Log should be written in Chinese.
 - The Log should contain the following sections, and follow the section description:
     - Requirement Analysis
     - Implementation Plan
@@ -21,11 +22,10 @@
 ---
 
 ## **Functional Requirements**  
-- Refine the functional requirements into specific items based on the system design document.  
-- Use a numbered list (e.g., FR1, FR2) to clearly label each functional point.  
+- Refine the functional requirements into specific items based on the system design document.    
 
 **Example:**  
-**FR1:** Functional requirement description  
+- Functional requirement description  
 - **Input:** Data or parameters  
 - **Output:** Result or format  
 
@@ -87,41 +87,63 @@
 # Implementation Plan Format
 
 ## **Introduction**  
-This implementation plan outlines the steps to develop the `PathInitializer` module as described in the design document. The module is responsible for generating a closed-loop path using a strategy pattern and integrating with the `RandomManager` for seed-based randomness.  
+- Provide an overview of the implementation plan, referencing the design document.  
+- State the purpose of the implementation plan and what it aims to achieve.  
 
 ---
 
 ## **Core Tasks**  
-1. **Define Interfaces and Enums**  
-   - Create the `IPathInitializationStrategy` interface for path generation strategies.  
-   - Define the `CharacterClass` enum to represent different character types.  
+- Break down the implementation into major tasks or milestones based on the design.  
+- Each task should be clearly defined and described. Use bullet points or numbered lists for clarity.  
 
-2. **Implement Core Components**  
-   - Develop the `PathInitializer` class: Manages strategy selection and seed-based path generation.  
-   - Implement the `DefaultPathStrategy` class: A basic path generation algorithm.  
+---
 
-3. **Integrate Dependencies**  
-   - Integrate `RandomManager` for seed-based randomization.  
-   - Prepare data output format (`List<Vector2Int>`) for compatibility with the Tile System.  
+## **Code Structure and Components**  
+- Outline the key classes, interfaces, and data structures that need to be implemented.  
+- Link these components to the functionality described in the design document.  
 
-4. **Add Path Validation**  
-   - Implement validation logic to ensure paths are:  
-     - Closed loops.  
-     - Free of intersections or invalid tiles.  
+---
 
-5. **Testing and Debugging**  
-   - Write unit tests for:  
-     - Path strategies.  
-     - Seed-based reproducibility.  
-     - Path validation logic.  
-   - Test edge cases (e.g., invalid lengths or seeds).  
+## **Dependencies**  
+- List all tools, libraries, systems, or components that the implementation depends on.  
+- Clearly describe how they will be integrated or interacted with.  
+
+---
+
+## **Step-by-Step Implementation Steps**  
+- Provide a detailed sequence of tasks for the implementation.  
+- Break tasks into smaller, actionable steps.  
+
+---
+
+## **Testing Strategy**  
+- Describe how you will test the implementation.  
+- Include unit testing, integration testing, and any edge cases.  
+
+---
+
+## **Timeline**  
+- Provide a rough timeline for each implementation phase or task.  
+- Use dates or relative time estimates.  
+
+---
+
+## **Risks and Mitigations**  
+- Identify potential risks that may arise during implementation and propose mitigation strategies.  
+
+---
+
+## **Next Steps**  
+- Describe subsequent actions, like integration with other systems, reviews, or performance optimizations.  
+
 
 
 
 
 # Code Structure
 Briefly describe the code structure of the module.
-If is too complex, you can use a diagram to describe the code structure.
+If is possible, please use a diagram to describe the code structure. 
+That is, the class structure and the relationship between the classes.
 
 
 # Key Features
@@ -129,15 +151,13 @@ Briefly describe the key features of the module.
 
 
 # Next Steps
-Briefly describe the next steps of the module.
+Briefly describe the possible next steps of the module.
 
 
 # Testing Strategy
 Briefly describe the testing strategy of the module.
 
 
-# Dependencies
-Briefly describe the dependencies of the module.
 
 
 

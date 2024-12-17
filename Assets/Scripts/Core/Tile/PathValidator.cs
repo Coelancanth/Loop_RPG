@@ -3,11 +3,11 @@ using UnityEngine;
 public class PathValidator : MonoBehaviour
 {
     [SerializeField] private LoopCounter _loopCounter;
-    private PathSystem _pathSystem;
+    private TileSystem _tileSystem;
 
     private void Awake()
     {
-        _pathSystem = GetComponent<PathSystem>();
+        _tileSystem = GetComponent<TileSystem>();
     }
 
     private void OnEnable()

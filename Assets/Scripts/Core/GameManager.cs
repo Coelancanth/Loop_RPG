@@ -3,7 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private ResourceManager _resourceManager;
-    [SerializeField] private PathSystem _pathSystem;
+    [SerializeField] private TileSystem _tileSystem;
     [SerializeField] private LoopCounter _loopCounter;
     [SerializeField] private TilePlacer _tilePlacer;
     

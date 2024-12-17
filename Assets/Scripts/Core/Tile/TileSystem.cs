@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class PathSystem : MonoBehaviour
+public class TileSystem : MonoBehaviour
 {
     [SerializeField] private ResourceManager _resourceManager;
     [SerializeField] private GameObject[] _tilePrefabs; // 每种类型对应的预制体

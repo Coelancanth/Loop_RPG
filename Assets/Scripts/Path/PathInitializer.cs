@@ -8,7 +8,7 @@ namespace Game.Path
     {
         private readonly Dictionary<CharacterClass, IPathInitializationStrategy> _strategies;
         private readonly RandomManager _randomManager;
-        private const int DEFAULT_PATH_LENGTH = 30;
+        private const int DEFAULT_PATH_LENGTH = 10;
 
         public PathInitializer(RandomManager randomManager)
         {
@@ -19,13 +19,14 @@ namespace Game.Path
 
         private void InitializeStrategies()
         {
-            // Add default strategy
-            _strategies[CharacterClass.Default] = new DefaultPathStrategy();
+            // Add simple strategy as the default
+            var simpleStrategy = new SimplePathStrategy();
+            _strategies[CharacterClass.Default] = simpleStrategy;
             
             // Add character-specific strategies
-            _strategies[CharacterClass.Warrior] = new DefaultPathStrategy(); // For now using default
-            _strategies[CharacterClass.Mage] = new DefaultPathStrategy();   // Will be replaced with specific strategies
-            _strategies[CharacterClass.Rogue] = new DefaultPathStrategy();  // in future implementations
+            _strategies[CharacterClass.Warrior] = new DefaultPathStrategy(); // More complex strategy for specific classes
+            _strategies[CharacterClass.Mage] = new DefaultPathStrategy();
+            _strategies[CharacterClass.Rogue] = new DefaultPathStrategy();
         }
 
         /// <summary>
@@ -48,7 +49,8 @@ namespace Game.Path
 
             if (!strategy.ValidatePath(path))
             {
-                throw new InvalidOperationException("Generated path is not valid");
+                UnityEngine.Debug.LogWarning("Generated path validation failed, falling back to simple strategy");
+                path = _strategies[CharacterClass.Default].GeneratePath(length, _randomManager.CurrentSeed);
             }
 
             return path;
