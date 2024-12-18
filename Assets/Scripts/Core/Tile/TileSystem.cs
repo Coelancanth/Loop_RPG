@@ -3,17 +3,38 @@ using System.Collections.Generic;
 
 public class TileSystem : MonoBehaviour
 {
-    [SerializeField] private ResourceManager _resourceManager;
-    [SerializeField] private GameObject[] _tilePrefabs; // 每种类型对应的预制体
-    [SerializeField] private Transform _tilesParent; // 用于组织层级
-    [SerializeField] private Vector2 _gridSize = new Vector2(1f, 1f); // 网格大小
+    [Header("Prefab References")]
+    [SerializeField] private GameObject _roadTilePrefab;
+    [SerializeField] private GameObject _forestTilePrefab;
+    [SerializeField] private GameObject _mountainTilePrefab;
+    [SerializeField] private GameObject _emptyTilePrefab;
     
-    private Dictionary<Vector2Int, Tile> _tiles = new();
-
-    // 添加公共属性用于调试
-    public int TilePrefabsCount => _tilePrefabs?.Length ?? 0;
-
+    [Header("Settings")]
+    [SerializeField] private Transform _tilesParent;
+    [SerializeField] private Vector2 _gridSize = new Vector2(1f, 1f);
+    [SerializeField] private ResourceManager _resourceManager;
+    
+    private Dictionary<Vector2Int, BaseTile> _tiles = new();
+    private Dictionary<TileType, GameObject> _prefabMap;
+    
     private void Awake()
+    {
+        InitializePrefabMap();
+        EnsureTilesParent();
+    }
+    
+    private void InitializePrefabMap()
+    {
+        _prefabMap = new Dictionary<TileType, GameObject>
+        {
+            { TileType.Empty, _emptyTilePrefab },
+            { TileType.Road, _roadTilePrefab },
+            { TileType.Forest, _forestTilePrefab },
+            { TileType.Mountain, _mountainTilePrefab }
+        };
+    }
+    
+    private void EnsureTilesParent()
     {
         if (_tilesParent == null)
         {
@@ -22,12 +43,65 @@ public class TileSystem : MonoBehaviour
             _tilesParent.SetParent(transform);
         }
     }
-
-    public GameObject GetTilePrefab(TileType type)
+    
+    public bool PlaceTile(Vector2Int position, TileType type)
     {
-        return _tilePrefabs[(int)type];
+        Debug.Log($"PlaceTile called - Position: {position}, Type: {type}");
+        
+        // 如果位置已经有Tile，先移除它
+        if (_tiles.ContainsKey(position))
+        {
+            RemoveTile(position);
+        }
+        
+        // 获取对应的预制体
+        if (!_prefabMap.TryGetValue(type, out GameObject prefab))
+        {
+            Debug.LogError($"No prefab found for tile type {type}");
+            return false;
+        }
+        
+        // 创建Tile实例
+        Vector3 worldPosition = GridToWorld(position);
+        var tileObj = Instantiate(prefab, worldPosition, Quaternion.identity, _tilesParent);
+        var tile = tileObj.GetComponent<BaseTile>();
+        
+        if (tile == null)
+        {
+            Debug.LogError($"Prefab for {type} does not have a BaseTile component!");
+            Destroy(tileObj);
+            return false;
+        }
+        
+        // 设置Tile的位置属性
+        tile.Position = position;
+        
+        // 尝试放置Tile
+        if (tile.CanPlace(_resourceManager) && tile.OnPlaced(_resourceManager))
+        {
+            _tiles[position] = tile;
+            EventBus.Instance.TriggerTilePlaced(position);
+            Debug.Log($"Successfully placed {type} tile at {position}");
+            return true;
+        }
+        
+        Debug.LogWarning($"Failed to place {type} tile at {position} - CanPlace or OnPlaced returned false");
+        Destroy(tileObj);
+        return false;
     }
-
+    
+    public bool RemoveTile(Vector2Int position)
+    {
+        if (!_tiles.TryGetValue(position, out var tile))
+            return false;
+            
+        tile.OnRemoved();
+        Destroy(tile.gameObject);
+        _tiles.Remove(position);
+        EventBus.Instance.TriggerTileRemoved(position);
+        return true;
+    }
+    
     public Vector3 GridToWorld(Vector2Int gridPosition)
     {
         return new Vector3(
@@ -36,7 +110,7 @@ public class TileSystem : MonoBehaviour
             0
         );
     }
-
+    
     public Vector2Int WorldToGrid(Vector3 worldPosition)
     {
         return new Vector2Int(
@@ -44,105 +118,60 @@ public class TileSystem : MonoBehaviour
             Mathf.RoundToInt(worldPosition.y / _gridSize.y)
         );
     }
-
-    public bool PlaceTile(Vector2Int position, TileType type)
-    {
-        Debug.Log($"PlaceTile called - Position: {position}, Type: {type}");
-        
-        if (_tiles.ContainsKey(position))
-        {
-            Debug.LogWarning($"Tile already exists at position {position}");
-            return false;
-        }
-
-        var prefab = GetTilePrefab(type);
-        if (prefab == null)
-        {
-            Debug.LogError($"No prefab found for tile type {type}. Prefabs array length: {TilePrefabsCount}");
-            return false;
-        }
-
-        Debug.Log($"Creating tile at world position: {GridToWorld(position)}");
-        Vector3 worldPosition = GridToWorld(position);
-        var tileObj = Instantiate(prefab, worldPosition, Quaternion.identity, _tilesParent);
-        var tile = tileObj.GetComponent<Tile>();
-
-        if (tile == null)
-        {
-            Debug.LogError("Created object does not have Tile component!");
-            Destroy(tileObj);
-            return false;
-        }
-
-        if (tile.CanPlace(_resourceManager) && tile.OnPlaced(_resourceManager))
-        {
-            _tiles[position] = tile;
-            EventBus.Instance.TriggerTilePlaced(position);
-            Debug.Log($"Successfully placed tile at {position}");
-            return true;
-        }
-        else
-        {
-            Debug.LogWarning($"Failed to place tile at {position} - CanPlace or OnPlaced returned false");
-            Destroy(tileObj);
-            return false;
-        }
-    }
-
-    public bool RemoveTile(Vector2Int position)
-    {
-        if (!_tiles.TryGetValue(position, out var tile))
-            return false;
-
-        Destroy(tile.gameObject);
-        _tiles.Remove(position);
-        EventBus.Instance.TriggerTileRemoved(position);
-        return true;
-    }
-
+    
     public void SetupReferences(ResourceManager resourceManager)
     {
         _resourceManager = resourceManager;
     }
-
-    // 添加调试方法
+    
     private void OnValidate()
     {
-        // 确保预制体数组大小与TileType枚举匹配
-        if (_tilePrefabs == null || _tilePrefabs.Length != System.Enum.GetValues(typeof(TileType)).Length)
+        // 验证所有预制体都有正确的组件
+        ValidatePrefab(_roadTilePrefab, typeof(RoadTile), "Road");
+        ValidatePrefab(_forestTilePrefab, typeof(ForestTile), "Forest");
+        ValidatePrefab(_mountainTilePrefab, typeof(MountainTile), "Mountain");
+        ValidatePrefab(_emptyTilePrefab, typeof(EmptyTile), "Empty");
+    }
+    
+    private void ValidatePrefab(GameObject prefab, System.Type expectedType, string typeName)
+    {
+        if (prefab == null)
         {
-            Debug.LogWarning("Tile预制体数组大小与TileType枚举不匹配！");
+            Debug.LogError($"{typeName} tile prefab is missing!");
+            return;
+        }
+        
+        var tileComponent = prefab.GetComponent(expectedType);
+        if (tileComponent == null)
+        {
+            Debug.LogError($"{typeName} tile prefab is missing {expectedType.Name} component!");
+        }
+        
+        var spriteRenderer = prefab.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogError($"{typeName} tile prefab is missing SpriteRenderer component!");
         }
     }
-
-    // 修改网格绘制方法，使其在编辑器和运行时都可见
+    
+    // 在编辑器中绘制网格
     private void OnDrawGizmos()
     {
         DrawGrid();
     }
-
-    // 添加这个方法使网格在游戏中也可见
-    private void OnDrawGizmosSelected()
-    {
-        DrawGrid();
-    }
-
+    
     private void DrawGrid()
     {
         Gizmos.color = new Color(0.5f, 0.5f, 0.5f, 0.2f);
+        int gridSize = 10;
         
-        // 固定绘制范围，确保在编辑器中始终可见
-        int gridSize = 10; // 显示 20x20 的网格
-        
-        // 绘制垂直线
         for (int x = -gridSize; x <= gridSize; x++)
         {
             Vector3 start = new Vector3(x * _gridSize.x, -gridSize * _gridSize.y, 0);
             Vector3 end = new Vector3(x * _gridSize.x, gridSize * _gridSize.y, 0);
             Gizmos.DrawLine(start, end);
         }
-
-        // 绘制水平线
+        
         for (int y = -gridSize; y <= gridSize; y++)
         {
             Vector3 start = new Vector3(-gridSize * _gridSize.x, y * _gridSize.y, 0);
@@ -150,4 +179,4 @@ public class TileSystem : MonoBehaviour
             Gizmos.DrawLine(start, end);
         }
     }
-} 
+}

@@ -9,7 +9,6 @@ public class SceneSetup : MonoBehaviour
     public TileSystem TileSystem;
     public ResourceManager ResourceManager;
     public LoopCounter LoopCounter;
-    
     [Header("Input")]
     public TilePlacer TilePlacer;
     public Camera GameCamera;

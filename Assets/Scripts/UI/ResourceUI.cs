@@ -7,42 +7,90 @@ public class ResourceUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _stoneText;
     [SerializeField] private TextMeshProUGUI _goldText;
     [SerializeField] private TextMeshProUGUI _foodText;
+    [SerializeField] private ResourceManager _resourceManager;
     
-    private ResourceManager _resourceManager;
-
-    private void Start()
+    private bool _isInitialized = false;
+    
+    private void Awake()
     {
-        _resourceManager = FindObjectOfType<ResourceManager>();
-        if (_resourceManager != null)
-        {
-            // 更新所有资源的初始值
-            UpdateAllResourceTexts();
-        }
+        ValidateReferences();
     }
     
     private void OnEnable()
     {
-        EventBus.Instance.OnResourceChanged += HandleResourceChanged;
+        if (_isInitialized)
+        {
+            SubscribeToEvents();
+        }
+    }
+    
+    private void Start()
+    {
+        if (!_isInitialized)
+        {
+            ValidateReferences();
+        }
+        UpdateAllResourceTexts();
     }
     
     private void OnDisable()
     {
-        EventBus.Instance.OnResourceChanged -= HandleResourceChanged;
+        UnsubscribeFromEvents();
+    }
+    
+    private void ValidateReferences()
+    {
+        if (_resourceManager == null)
+        {
+            _resourceManager = FindObjectOfType<ResourceManager>();
+        }
+        
+        if (_resourceManager != null)
+        {
+            _isInitialized = true;
+            SubscribeToEvents();
+            UpdateAllResourceTexts();
+        }
+        else
+        {
+            Debug.LogError("ResourceManager reference is missing in ResourceUI!");
+        }
+    }
+    
+    private void SubscribeToEvents()
+    {
+        if (EventBus.Instance != null)
+        {
+            EventBus.Instance.OnResourceChanged += HandleResourceChanged;
+        }
+    }
+    
+    private void UnsubscribeFromEvents()
+    {
+        if (EventBus.Instance != null)
+        {
+            EventBus.Instance.OnResourceChanged -= HandleResourceChanged;
+        }
     }
     
     private void HandleResourceChanged(ResourceType type, int amount)
     {
-        UpdateResourceText(type, _resourceManager.GetResourceCount(type));
+        if (_resourceManager != null)
+        {
+            UpdateResourceText(type, _resourceManager.GetResourceCount(type));
+        }
     }
-
+    
     private void UpdateAllResourceTexts()
     {
+        if (_resourceManager == null) return;
+        
         UpdateResourceText(ResourceType.Wood, _resourceManager.GetResourceCount(ResourceType.Wood));
         UpdateResourceText(ResourceType.Stone, _resourceManager.GetResourceCount(ResourceType.Stone));
         UpdateResourceText(ResourceType.Gold, _resourceManager.GetResourceCount(ResourceType.Gold));
         UpdateResourceText(ResourceType.Food, _resourceManager.GetResourceCount(ResourceType.Food));
     }
-
+    
     private void UpdateResourceText(ResourceType type, int value)
     {
         var text = type switch

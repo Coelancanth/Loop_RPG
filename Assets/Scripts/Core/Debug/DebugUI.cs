@@ -35,7 +35,7 @@ public class DebugUI : MonoBehaviour
 
         if (_tileSystem != null)
         {
-            debug += $"Tile Prefabs Count: {_tileSystem.TilePrefabsCount}\n";
+            //debug += $"Tile Prefabs Count: {_tileSystem.TilePrefabsCount}\n";
         }
         else
         {
